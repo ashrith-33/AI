@@ -1,0 +1,103 @@
+class VacuumCleaner:
+    def __init__(self, room_matrix, start_position):
+        self.room = room_matrix
+        self.position = start_position
+        self.rows = len(room_matrix)
+        self.cols = len(room_matrix[0])
+
+    def display_room(self):
+        for row in self.room:
+            print(row)
+        print()
+
+    def status(self):
+        row, col = self.position
+        if self.room[row][col] == 1:
+            return "Dirty"
+        return "Clean"
+
+    def clean(self):
+        row, col = self.position
+        if self.room[row][col] == 1:
+            print(f"Cleaning position: {self.position} (was Dirty)")
+            self.room[row][col] = 0
+        else:
+            print(f"Position {self.position} is already Clean.")
+
+    def move(self, direction):
+        row, col = self.position
+        if direction == "right" and col < self.cols - 1:
+            self.position = (row, col + 1)
+        elif direction == "down" and row < self.rows - 1:
+            self.position = (row + 1, col)
+        elif direction == "left" and col > 0:
+            self.position = (row, col - 1)
+        elif direction == "up" and row > 0:
+            self.position = (row - 1, col)
+        print(f"Moved {direction} to position: {self.position} (Status: {self.status()})")
+
+    def clean_room(self):
+        row, col = self.position
+
+        # Move from (1,1) to (1,3)
+        for c in range(col, self.cols):
+            self.clean()
+            if c < self.cols - 1:
+                self.move("right")
+
+        # Move from (1,3) to (3,3)
+        for r in range(row + 1, self.rows):
+            self.clean()
+            if r < self.rows - 1:
+                self.move("down")
+
+        # Move from (3,3) to (3,1)
+        for c in range(self.cols - 2, -1, -1):
+            self.clean()
+            self.move("left")
+
+        # Move from (3,1) to (2,1)
+        for r in range(self.rows - 2, 0, -1):
+            self.clean()
+            self.move("up")
+
+        # Move from (2,1) to (2,2)
+        self.clean()
+        self.move("right")
+        self.clean()
+
+        print("Room A cleaning completed!")
+
+    def identify_room(self):
+        row, col = self.position
+        if row < self.rows // 2:
+            room = "Room A"
+        else:
+            room = "Room B"
+        print(f"Position {self.position} is in {room}. (Status: {self.status()})")
+        return room
+
+
+room_matrix = [
+    [1, 0, 1],
+    [0, 1, 0],
+    [1, 0, 1]
+]
+
+start_position = (0, 0)  # Starting at (1,1) position
+vacuum = VacuumCleaner(room_matrix, start_position)
+
+print("Initial room state:")
+vacuum.display_room()
+
+vacuum.clean_room()
+vacuum.display_room()
+
+vacuum.identify_room()
+
+# Move to Room B (starting at (2,0) for simplicity)
+vacuum.position = (2, 0)  # Move vacuum to the start of Room B (last row)
+print("Moving to Room B:")
+vacuum.clean_room()
+vacuum.display_room()
+vacuum.identify_room()
