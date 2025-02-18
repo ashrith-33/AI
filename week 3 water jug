@@ -1,0 +1,63 @@
+from collections import deque
+
+class WaterJugProblem:
+    def __init__(self, capacity_a, capacity_b, goal):
+        self.capacity_a = capacity_a
+        self.capacity_b = capacity_b
+        self.goal = goal
+
+    def is_goal_state(self, state):
+        return state[0] == self.goal or state[1] == self.goal
+
+    def get_next_states(self, current_state):
+        a, b = current_state
+        next_states = []
+
+        if a < self.capacity_a:
+
+            next_states.append((self.capacity_a, b))
+        if b < self.capacity_b:
+            next_states.append((a, self.capacity_b))
+        if a > 0:
+            next_states.append((0, b))
+        if b > 0:
+            next_states.append((a, 0))
+        if a > 0 and b < self.capacity_b:
+            transfer = min(a, self.capacity_b - b)
+            next_states.append((a - transfer, b + transfer))
+        if b > 0 and a < self.capacity_a:
+            transfer = min(b, self.capacity_a - a)
+            next_states.append((a + transfer, b - transfer))
+
+        return next_states
+
+    def solve(self):
+        initial_state = (0, 0)
+        queue = deque([initial_state])
+        visited = set()
+        parent = {initial_state: None}
+
+        while queue:
+            current_state = queue.popleft()
+            if current_state in visited:
+                continue
+            visited.add(current_state)
+
+            if self.is_goal_state(current_state):
+                path = []
+                while current_state is not None:
+                    path.append(current_state)
+                    current_state = parent[current_state]
+                path.reverse()
+                return path
+
+            for next_state in self.get_next_states(current_state):
+                if next_state not in visited:
+                    queue.append(next_state)
+                    parent[next_state] = current_state
+        return None
+
+
+problem = WaterJugProblem(3, 5, 4)
+solution = problem.solve()
+print("Solution Path:", solution)
