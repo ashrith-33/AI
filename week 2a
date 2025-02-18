@@ -1,0 +1,36 @@
+
+class TableDrivenAgent:
+    def __init__(self):
+
+        self.table = {
+            ('dirty', 'dirty', 'dirty', 'dirty'): ['clean A', 'move B'],
+            ('clean', 'dirty', 'dirty', 'dirty'): ['clean B', 'move C'],
+            ('clean', 'clean', 'dirty', 'dirty'): ['clean C', 'move D'],
+            ('clean', 'clean', 'clean', 'dirty'): ['clean D'],
+            ('clean', 'clean', 'clean', 'clean'): ['all clean'],
+        }
+
+    def perceive(self, room_states):
+        return tuple(room_states)
+
+    def act(self, current_state):
+        return self.table.get(current_state, ['Invalid State'])
+
+
+
+table_agent = TableDrivenAgent()
+
+
+room_states = ['dirty', 'dirty', 'dirty', 'dirty']
+while 'dirty' in room_states:
+    current_state = table_agent.perceive(room_states)
+    actions = table_agent.act(current_state)
+    for action in actions:
+        print(f"Action: {action}")
+        if action.startswith('clean'):
+            room = action.split()[-1]
+            room_index = ord(room) - ord('A')
+            room_states[room_index] = 'clean'
+        elif action.startswith('move'):
+            continue
+print("Final Room States:", room_states)
