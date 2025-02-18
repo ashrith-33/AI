@@ -1,0 +1,70 @@
+import random
+
+word_list = {"gitam", "ashrith", "computer", "laptop", "artificial", "intelligence", "master", "student"}
+
+MAX_ATTEMPTS = 6
+
+class HangmanGame:
+    def __init__(self, secret_word):
+        self.secret_word = secret_word
+        self.word_length = len(secret_word)
+        self.current_guess = ['_'] * self.word_length
+        self.attempts = 0
+        self.given_letters = set()
+    
+    def give_hint(self, letter):
+        if letter in self.secret_word:
+            self.given_letters.add(letter)
+            return True
+        return False
+
+    def make_guess(self, guessed_positions):
+        temp_word = list(self.current_guess)
+
+        for letter, position in guessed_positions:
+            if 0 <= position < self.word_length:
+                temp_word[position] = letter
+        
+        possible_word = ''.join(temp_word)
+
+        if '_' not in possible_word and possible_word in word_list:
+            self.current_guess = temp_word
+            return True
+
+        self.attempts += 1
+        return False
+
+    def check_game_status(self):
+        if '_' not in self.current_guess:
+            return "P2 Wins! Successfully formed the word."
+        if self.attempts >= MAX_ATTEMPTS:
+            return f"P1 Wins! The word was '{self.secret_word}'."
+        if len(self.given_letters) == 0 and self.attempts < MAX_ATTEMPTS:
+            return "P2 Wins by default! No body parts identified."
+        return None
+
+def play_hangman():
+    secret_word = random.choice(list(word_list))
+    game = HangmanGame(secret_word)
+
+    print(f"Game started! Word Length: {game.word_length}")
+    
+    while True:
+        hint_letter = random.choice(secret_word)
+        print(f"P1 gives hint: {hint_letter}")
+        game.give_hint(hint_letter)
+
+        available_positions = [i for i, char in enumerate(game.current_guess) if char == '_']
+        guessed_positions = [(hint_letter, random.choice(available_positions))]
+
+        if game.make_guess(guessed_positions):
+            print("P2 successfully placed letters:", ''.join(game.current_guess))
+
+        status = game.check_game_status()
+        if status:
+            print(status)
+            break
+
+        print("Current word state:", ''.join(game.current_guess), "| Attempts:", game.attempts)
+
+play_hangman()
