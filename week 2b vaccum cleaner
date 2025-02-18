@@ -1,0 +1,27 @@
+
+class SimpleReflexAgent:
+    def __init__(self):
+        self.current_room = 0  # Start at room A
+
+    def perceive(self, room_states):
+        return room_states[self.current_room]
+
+    def act(self, perception, room_states):
+        if perception == 'dirty':
+            print(f"Room {chr(self.current_room + ord('A'))} is dirty. Cleaning...")
+            room_states[self.current_room] = 'clean'
+        else:
+            print(f"Room {chr(self.current_room + ord('A'))} is already clean.")
+        if self.current_room < len(room_states) - 1:
+            self.current_room += 1
+            print(f"Moving to Room {chr(self.current_room + ord('A'))}")
+
+
+simple_agent = SimpleReflexAgent()
+
+
+room_states = ['dirty', 'clean', 'dirty', 'dirty']
+while 'dirty' in room_states:
+    current_perception = simple_agent.perceive(room_states)
+    simple_agent.act(current_perception, room_states)
+print("Final Room States:", room_states)
