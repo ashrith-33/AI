@@ -1,0 +1,95 @@
+import heapq
+
+class PuzzleState:
+    def __init__(self, board, empty_pos, moves=0, parent=None):
+        self.board = board
+        self.empty_pos = empty_pos
+        self.moves = moves
+        self.parent = parent
+        self.priority = self.moves + self.heuristic()
+
+    def heuristic(self):
+        """ Manhattan Distance heuristic """
+        distance = 0
+        goal_positions = {1: (0, 0), 2: (0, 1), 3: (0, 2),
+                          4: (1, 0), 5: (1, 1), 6: (1, 2),
+                          7: (2, 0), 8: (2, 1), 0: (2, 2)}
+
+        for i in range(3):
+            for j in range(3):
+                tile = self.board[i][j]
+                if tile != 0:
+                    goal_x, goal_y = goal_positions[tile]
+                    distance += abs(i - goal_x) + abs(j - goal_y)
+        return distance
+
+    def get_neighbors(self):
+        """ Generate possible moves """
+        neighbors = []
+        x, y = self.empty_pos
+        moves = [(-1, 0), (1, 0), (0, -1), (0, 1)]  # Up, Down, Left, Right
+
+        for dx, dy in moves:
+            new_x, new_y = x + dx, y + dy
+            if 0 <= new_x < 3 and 0 <= new_y < 3:
+                new_board = [row[:] for row in self.board]
+                new_board[x][y], new_board[new_x][new_y] = new_board[new_x][new_y], new_board[x][y]
+                neighbors.append(PuzzleState(new_board, (new_x, new_y), self.moves + 1, self))
+        return neighbors
+
+    def is_goal(self):
+        return self.board == [[1, 2, 3], [4, 5, 6], [7, 8, 0]]
+
+    def __lt__(self, other):
+        return self.priority < other.priority
+
+    def __eq__(self, other):
+        return self.board == other.board
+
+    def print_board(self):
+        for row in self.board:
+            print(" ".join(str(x) if x != 0 else " " for x in row))
+        print("-" * 10)
+
+def solve_puzzle(initial_state):
+    start_state = PuzzleState(initial_state, find_empty(initial_state))
+    pq = []
+    heapq.heappush(pq, start_state)
+    visited = set()
+
+    while pq:
+        current = heapq.heappop(pq)
+
+        if current.is_goal():
+            path = []
+            while current:
+                path.append(current)
+                current = current.parent
+            return path[::-1]
+
+        visited.add(tuple(map(tuple, current.board)))
+
+        for neighbor in current.get_neighbors():
+            if tuple(map(tuple, neighbor.board)) not in visited:
+                heapq.heappush(pq, neighbor)
+
+    return None
+
+def find_empty(board):
+    for i in range(3):
+        for j in range(3):
+            if board[i][j] == 0:
+                return (i, j)
+
+def print_solution(solution):
+    for step, state in enumerate(solution):
+        print(f"Step {step}:")
+        state.print_board()
+
+initial_board = [[4, 1, 3], [7, 2, 5], [8, 6, 0]]
+
+solution = solve_puzzle(initial_board)
+if solution:
+    print_solution(solution)
+else:
+    print("No solution found!")
