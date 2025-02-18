@@ -1,0 +1,66 @@
+import networkx as nx
+import matplotlib.pyplot as plt
+
+class BFS_DFS:
+    def __init__(self, initial_state, goal_state):
+        self.initial_state = initial_state
+        self.goal_state = goal_state
+        self.tree = nx.DiGraph()
+
+    def bfs(self):
+        frontier = [self.initial_state]
+        explored = set()
+        parent = {self.initial_state: None}
+
+        while frontier:
+            state = frontier.pop(0)
+            if state == self.goal_state:
+                return self._get_path(parent, state)
+            explored.add(state)
+            for child in self._get_children(state):
+                if child not in explored and child not in frontier:
+                    frontier.append(child)
+                    parent[child] = state
+                    self.tree.add_edge(state, child)
+        return []
+
+    def dfs(self):
+        frontier = [self.initial_state]
+        explored = set()
+        parent = {self.initial_state: None}
+
+        while frontier:
+            state = frontier.pop()
+            if state == self.goal_state:
+                return self._get_path(parent, state)
+            explored.add(state)
+            for child in self._get_children(state):
+                if child not in explored and child not in frontier:
+                    frontier.append(child)
+                    parent[child] = state
+                    self.tree.add_edge(state, child)
+        return []
+
+    def _get_children(self, state):
+        return [state + 1, state + 2]
+
+    def _get_path(self, parent, state):
+        path = []
+        while state is not None:
+            path.append(state)
+            state = parent[state]
+        return path[::-1]
+
+    def draw_tree(self):
+        pos = nx.spring_layout(self.tree)
+        nx.draw(self.tree, pos, with_labels=True, node_size=2000, node_color="yellow", font_size=10, font_weight="bold", arrows=True)
+        plt.show()
+
+bfs_dfs = BFS_DFS(1, 7)
+bfs_path = bfs_dfs.bfs()
+print("BFS Path:", bfs_path)
+
+dfs_path = bfs_dfs.dfs()
+print("DFS Path:", dfs_path)
+
+bfs_dfs.draw_tree()
